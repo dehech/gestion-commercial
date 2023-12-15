@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Dec 11 11:56:26 2023
+Created on Mon Dec 11 15:40:44 2023
 
-@author: DELL
+@author: ASUS
 """
 
+#gestion_stock.py
 import tkinter as tk
 
 def vendre_produit():
@@ -29,7 +30,8 @@ def main_interface():
 # Création de la fenêtre principale
     root = tk.Tk()
     root.title("Gestion de Stock et Vente")
-
+    root.geometry ('400x400')
+    root ['bg']= 'sky blue'
 # Barre de menu
     menu_bar = tk.Menu(root)
 
@@ -50,16 +52,16 @@ def main_interface():
     
 # Créer un label pour afficher le message
     label_message = tk.Label(root, text="Bienvenue dans votre application de gestion de stock")
-    label_message.pack()
+    label_message.place(x=40 , y=40)
 
 
 # Bouton pour vendre un produit
     btn_vendre = tk.Button(root, text="Vendre un produit", command=vendre_produit)
-    btn_vendre.pack()
+    btn_vendre.place(x=40 , y=80)
 
 # Bouton pour ajouter un produit au stock
     btn_ajouter = tk.Button(root, text="Ajouter un produit", command=ajouter_produit)
-    btn_ajouter.pack()
+    btn_ajouter.place(x=40 , y=120)
     
 # Boucle principale pour démarrer l'interface graphique
     root.mainloop()
