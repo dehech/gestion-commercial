@@ -30,6 +30,9 @@ root = tk.Tk()
 root.title("Interface de Connexion")
 root ['bg']= 'sky blue'
 root.geometry ('400x400')
+print('hello')
+
+
 
 
 # Labels et champs d'entrée pour le nom d'utilisateur et le mot de passe
