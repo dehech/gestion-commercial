@@ -1,36 +1,21 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Dec 11 15:40:44 2023
+Created on Fri Jan  5 19:47:00 2024
 
-@author: ASUS
+@author: DELL
 """
-
-#gestion_stock.py
 import tkinter as tk
 import mysql.connector
+from connexion_db import connect_to_db
 
-def deconnexion(root):
-    root.destroy()  # Fermer la fenêtre de connexion
-    import sign_in
 
-def connect_to_database():
-    try:
-        mydb = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="",
-            database="projet_python"
-        )
-        return mydb
-    except mysql.connector.Error as err:
-        print(f"Erreur de connexion à la base de données : {err}")
-        return None
-
-def vendre_produit():
-    # Logique pour la vente d'un produit
-    print("Produit vendu !")
-
-def ajouter_produit(database):
+database = connect_to_db()
+def clear_entries(*entries):
+    for entry in entries:
+        entry.delete(0, tk.END)
+    
+def ajouter_produit(database): 
+              
     def add_product():
      nom_produit = entry_nom_produit.get()
      description = entry_description.get()
@@ -41,42 +26,44 @@ def ajouter_produit(database):
      try:
          cursor = database.cursor()
          cursor.execute("SELECT MAX(id_produit) + 1 FROM produit")
-         next_id = cursor.fetchone()[0]  # Récupérer le résultat de la requête
+         next_id = cursor.fetchone()[0]  
          query = "INSERT INTO produit (id_produit, nom_produit, description, quantite, prix_achat, prix_vente) VALUES (%s, %s, %s, %s, %s, %s)"
          cursor.execute(query, (next_id, nom_produit, description, quantite, prix_achat, prix_vente))
          database.commit()
          print("Produit ajouté avec succès.")
+         clear_entries(entry_nom_produit, entry_description, entry_quantite, entry_prix_achat, entry_prix_vente)
      except mysql.connector.Error as err:
          print(f"Erreur lors de l'ajout du produit : {err}")
 
     root = tk.Tk()
     root.title("Ajout de Produit")
+    root.configure(bg='#7D4FFE')
 
-    label_nom = tk.Label(root, text="Nom du produit:")
+    label_nom = tk.Label(root, text="Nom du produit:", bg='#7D4FFE', fg="white")
     label_nom.pack()
 
     entry_nom_produit = tk.Entry(root)
     entry_nom_produit.pack()
 
-    label_description = tk.Label(root, text="Description:")
+    label_description = tk.Label(root, text="Description:", bg='#7D4FFE', fg="white")
     label_description.pack()
 
     entry_description = tk.Entry(root)
     entry_description.pack()
 
-    label_quantite = tk.Label(root, text="Quantité:")
+    label_quantite = tk.Label(root, text="Quantité:", bg='#7D4FFE', fg="white")
     label_quantite.pack()
 
     entry_quantite = tk.Entry(root)
     entry_quantite.pack()
 
-    label_prix_achat = tk.Label(root, text="Prix d'achat:")
+    label_prix_achat = tk.Label(root, text="Prix d'achat:",bg='#7D4FFE', fg="white")
     label_prix_achat.pack()
 
     entry_prix_achat = tk.Entry(root)
     entry_prix_achat.pack()
 
-    label_prix_vente = tk.Label(root, text="Prix de vente:")
+    label_prix_vente = tk.Label(root, text="Prix de vente:", bg='#7D4FFE', fg="white")
     label_prix_vente.pack()
 
     entry_prix_vente = tk.Entry(root)
@@ -86,23 +73,20 @@ def ajouter_produit(database):
     btn_ajouter.pack()
 
     root.mainloop()
-    
+
 def lister_produits(database):
     try:
         cursor = database.cursor()
-        cursor.execute("SELECT CONCAT('id: ', id_produit, ', nom: ', nom_produit, ', desc: ', description, ', Qte: ', quantite, ', prix_achat: ', prix_achat, ', prix_vente: ', prix_vente) AS infos_produit FROM produit;")
+        cursor.execute("SELECT CONCAT('id: ', id_produit, ', nom: ', nom_produit, ', desc: ', description, ', Qte: ', quantite, ', prix_achat: ', prix_achat, ', prix_vente: ', prix_vente) AS infos_produit FROM produit ORDER BY nom_produit;")
         result = cursor.fetchall()
-        # Création de la fenêtre Tkinter
         root = tk.Tk()
         root.title("Liste des Produits")
        
-        # Zone de texte pour afficher les produits
         text_area = tk.Text(root, height=10, width=80)
         text_area.pack()
        
-        # Affichage de tous les produits dans la zone de texte
         for row in result:
-           text_area.insert(tk.END, row[0] + "\n")  # Ajoute chaque produit dans une nouvelle ligne
+           text_area.insert(tk.END, row[0] + "\n")  
        
         root.mainloop()
     except mysql.connector.Error as err:
@@ -118,16 +102,16 @@ def chercher_produit(database):
             cursor.execute(query)
             result = cursor.fetchall()
 
-            text_area.delete(1.0, tk.END)  # Efface le contenu précédent de la zone de texte
+            text_area.delete(1.0, tk.END)  
 
-            # Affichage des résultats dans la zone de texte
             for row in result:
-                text_area.insert(tk.END, row[0] + "\n")  # Ajoute chaque produit dans une nouvelle ligne
+                text_area.insert(tk.END, row[0] + "\n")  
         except mysql.connector.Error as err:
             print(f"Erreur lors de la recherche de produit : {err}")
 
     root = tk.Tk()
     root.title("Recherche de Produit")
+    root.configure(bg='#7D4FFE')
 
     label = tk.Label(root, text="Nom du Produit à rechercher:")
     label.pack()
@@ -152,6 +136,7 @@ def supprimer_produit(database):
             cursor.execute(query, (product_name,))
             database.commit()
             print("Produit supprimé avec succès.")
+            clear_entries(entry_nom_produit)
         except mysql.connector.Error as err:
             print(f"Erreur lors de la suppression du produit : {err}")
 
@@ -186,13 +171,13 @@ def update_quantity(database, product_id, new_quantity):
         database.commit()
     except mysql.connector.Error as err:
         print(f"Erreur lors de la mise à jour de la quantité : {err}")
-
+    
 def inventaire(database):
     def update():
         for product_id, entry in entries.items():
-            product_id = row[0]
             new_quantity = entry.get()
             update_quantity(database, product_id, int(new_quantity))
+        print("Produits mise à jour avec succès !")
     
     root = tk.Tk()
     root.title("Inventaire")
@@ -241,25 +226,24 @@ def modifier_produit(database):
             result = cursor.fetchone()
 
             if result:
-                # Produit trouvé, afficher une page pour les modifications
                 root_modif = tk.Tk()
                 root_modif.title("Modifier Produit")
 
-                # Créer des champs pour chaque attribut du produit
                 labels = ["Nom du Produit:", "Description:", "Quantité:", "Prix Achat:", "Prix Vente:"]
                 entries = []
                 for i, label_text in enumerate(labels):
                     label = tk.Label(root_modif, text=label_text)
                     label.grid(row=i, column=0)
                     entry = tk.Entry(root_modif)
-                    entry.insert(tk.END, result[i+1])  # Insérer la valeur de l'attribut correspondant
+                    entry.insert(tk.END, result[i+1]) 
                     entry.grid(row=i, column=1)
                     entries.append(entry)
 
                 def modifier():
                     new_values = [entry.get() for entry in entries]
                     update_product(database, result[0], new_values)
-
+                    clear_entries(*entries)
+                clear_entries(entry_nom_produit)
                 btn_modifier = tk.Button(root_modif, text="Modifier", command=modifier)
                 btn_modifier.grid(row=len(labels), columnspan=2)
 
@@ -268,7 +252,6 @@ def modifier_produit(database):
                 print("Produit non trouvé.")
         except mysql.connector.Error as err:
             print(f"Erreur lors de la recherche du produit : {err}")
-
     def update_product(database, product_id, new_values):
         try:
             cursor = database.cursor()
@@ -292,43 +275,3 @@ def modifier_produit(database):
     btn_rechercher.pack()
 
     root.mainloop()
-
-
-def main_interface():
-    root = tk.Tk()
-    root.title("StockMaster - Gestion de Stock")
-    app_name_label = tk.Label(root, text="StockMaster - Gestion de Stock", bg="#7D4FFE", fg="white", font=("Arial", 14))
-    app_name_label.pack(side="top", fill="x")
-    root.geometry('800x600')
-    root.configure(bg='#7D4FFE')
-
-    btn_vendre = tk.Button(root, text="Vendre un produit", command=vendre_produit)
-    btn_vendre.pack(pady=10)
-
-    btn_ajouter = tk.Button(root, text="Ajouter un produit", command=lambda:ajouter_produit(database))
-    btn_ajouter.pack(pady=10)
-
-    btn_lister = tk.Button(root, text="Lister tous les produits", command=lambda:lister_produits(database))
-    btn_lister.pack(pady=10)
-
-    btn_chercher = tk.Button(root, text="Chercher un produit", command= lambda:chercher_produit(database))
-    btn_chercher.pack(pady=10)
-
-    btn_inventaire = tk.Button(root, text="Inventaire", command=lambda:inventaire(database))
-    btn_inventaire.pack(pady=10)
-    
-    btn_supprimer = tk.Button(root, text="supprimer produit", command=lambda:supprimer_produit(database))
-    btn_supprimer.pack(pady=10)
-    
-    btn_modifier = tk.Button(root, text="modifier produit", command=lambda:modifier_produit(database))
-    btn_modifier.pack(pady=10)
-    
-    btn_deconnexion = tk.Button(root, text="Déconnexion", command=lambda:deconnexion(root))
-    btn_deconnexion.pack(anchor="nw", side="right", pady=5)  # Positionnement en haut à droite
-
-    root.resizable(True, True)
-    database = connect_to_database()
-    root.mainloop()
-
-# Lancer l'interface principale
-main_interface()
